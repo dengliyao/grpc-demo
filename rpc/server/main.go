@@ -4,7 +4,13 @@ import (
 	"fmt"
 	"net"
 	"net/rpc"
+	
+	"github.com/dengliyao/grpc-demo/rpc/service"
 )
+
+// 使用变量声明来约束 HelloService 使用规范
+// 声明了一个空指针, 强制把这个指针转换成一个*HelloService
+var _ service.Service = (*HelloService)(nil)
 
 type HelloService struct{}
 
@@ -17,7 +23,7 @@ func (s *HelloService) Hello(name string, resq *string) error {
 
 func main() {
 	// 服务注册给RPC框架
-	err := rpc.RegisterName("HelloService", new(HelloService))
+	err := rpc.RegisterName(service.Name, new(HelloService))
 	if err != nil {
 		panic(err)
 	}
