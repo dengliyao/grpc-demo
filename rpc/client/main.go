@@ -3,27 +3,47 @@ package main
 import (
 	"fmt"
 	"net/rpc"
+	
+	"github.com/dengliyao/grpc-demo/rpc/service"
 )
+
+var _ service.Service = (*HelloClient)(nil)
+
+// 客户端构造函数
+func NewHelloClient(network, address string) (service.Service, error) {
+	// 与服务端建立连接
+	client, err := rpc.Dial(network, address)
+	if err != nil {
+		return nil, err
+	}
+	return &HelloClient{
+		client: client,
+	}, nil
+	
+}
+
+type HelloClient struct {
+	client *rpc.Client
+}
+
+// Hello 对于RPC客户端，需要包装客户端的调用
+func (c *HelloClient) Hello(name string, resp *string) error {
+	
+	return c.client.Call(service.Name+".Hello", name, resp)
+}
 
 func main() {
 	
-	// 与服务端建立连接
-	client, err := rpc.Dial("tcp", "localhost:1234")
+	// 初始化客户端实例
+	client, err := NewHelloClient("tcp", "127.0.0.1:1234")
 	if err != nil {
 		panic(err)
 	}
 	
-	// 然后通过client.Call调用具体的RPC方法
-	// 在调用client.Call时:
-	// 		第一个参数是用点号链接的RPC服务名字和方法名字，
-	// 		第二个参数是 请求参数
-	//      第三个是请求响应, 必须是一个指针, 有底层rpc服务帮你赋值
-	
+	// 发起客户端调用
 	var resp string
-	err = client.Call("HelloService.Hello", "alice", &resp)
-	if err != nil {
-		panic(err)
-	}
+	client.Hello("dengliyao", &resp)
 	
 	fmt.Println(resp)
+	
 }
