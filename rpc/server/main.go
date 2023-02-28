@@ -22,6 +22,7 @@ func (s *HelloService) Hello(name string, resq *string) error {
 	return nil
 }
 
+// tcprpc
 func main() {
 	// 服务注册给RPC框架
 	err := rpc.RegisterName(service.Name, new(HelloService))
