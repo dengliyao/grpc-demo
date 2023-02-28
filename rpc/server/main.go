@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/rpc"
+	"net/rpc/jsonrpc"
 	
 	"github.com/dengliyao/grpc-demo/rpc/service"
 )
@@ -40,7 +41,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		
-		go rpc.ServeConn(conn)
+		// 实现 服务端json
+		go rpc.ServeCodec(jsonrpc.NewServerCodec(conn))
 	}
 }

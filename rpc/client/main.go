@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/rpc"
+	"net/rpc/jsonrpc"
 	
 	"github.com/dengliyao/grpc-demo/rpc/service"
 )
@@ -12,10 +14,13 @@ var _ service.Service = (*HelloClient)(nil)
 // 客户端构造函数
 func NewHelloClient(network, address string) (service.Service, error) {
 	// 与服务端建立连接
-	client, err := rpc.Dial(network, address)
+	conn, err := net.Dial(network, address)
 	if err != nil {
 		return nil, err
 	}
+	
+	// 客户端实现了基于 JSON的编解码
+	client := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(conn))
 	return &HelloClient{
 		client: client,
 	}, nil
